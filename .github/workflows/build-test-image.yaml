@@ -1,0 +1,130 @@
+name: Build controller test image
+
+on:
+  push:
+    branches: [images/pr368-prefix-test]
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Controller commit or branch to build
+        required: true
+        default: fix/ingress-prefix-path-semantics
+      build_baseline:
+        description: Also build the pre-fix AMD64 comparison image
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: controller-test-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      revision: ${{ steps.metadata.outputs.revision }}
+      tag: ${{ steps.metadata.outputs.tag }}
+      image: ${{ steps.metadata.outputs.image }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || 'ed40cb12cf32d7b7315f71b66831c92bca3fd2b4' }}
+      - id: metadata
+        run: |
+          revision=$(git rev-parse HEAD)
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
+          echo "tag=pr368-${revision:0:8}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/cloudflare-tunnel-ingress-controller" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: metadata
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.metadata.outputs.revision }}
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: image/cloudflare-tunnel-ingress-controller/Dockerfile
+          platforms: linux/${{ matrix.arch }}
+          push: true
+          tags: ${{ needs.metadata.outputs.image }}:${{ needs.metadata.outputs.tag }}-${{ matrix.arch }}
+          build-args: |
+            RUNTIME_BASE=gcr.io/distroless/static:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ needs.metadata.outputs.revision }}
+          cache-from: type=gha,scope=controller-${{ matrix.arch }}
+          cache-to: type=gha,scope=controller-${{ matrix.arch }},mode=max
+
+  baseline:
+    needs: metadata
+    if: github.event_name == 'push' || inputs.build_baseline
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 627362f269d42ae4cb7fdfba1933d9bb078a95b0
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: image/cloudflare-tunnel-ingress-controller/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ needs.metadata.outputs.image }}:baseline-627362f-amd64
+          build-args: |
+            RUNTIME_BASE=gcr.io/distroless/static:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=627362f269d42ae4cb7fdfba1933d9bb078a95b0
+          cache-from: type=gha,scope=controller-amd64
+
+  manifest:
+    needs: [metadata, build]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish multi-architecture manifest
+        env:
+          IMAGE: ${{ needs.metadata.outputs.image }}
+          TAG: ${{ needs.metadata.outputs.tag }}
+        run: |
+          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:$TAG-amd64" "$IMAGE:$TAG-arm64"
+          docker buildx imagetools inspect "$IMAGE:$TAG" >> "$GITHUB_STEP_SUMMARY"
