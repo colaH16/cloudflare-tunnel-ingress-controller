@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -55,8 +56,21 @@ func FromIngressToExposure(ctx context.Context, logger logr.Logger, kubeClient c
 
 		hostname := rule.Host
 		scheme := "http"
+		originURL, hasOriginURL := getAnnotation(ingress.Annotations, AnnotationOriginURL)
+		if hasOriginURL {
+			parsed, err := url.Parse(originURL)
+			if err != nil || parsed == nil || (parsed.Scheme != "http" && parsed.Scheme != "https") ||
+				parsed.Hostname() == "" || parsed.User != nil || parsed.Path != "" ||
+				parsed.RawQuery != "" || parsed.Fragment != "" || strings.TrimSpace(originURL) != originURL {
+				return nil, errors.Errorf("annotation %s must be an HTTP(S) origin URL without credentials, path, query or fragment", AnnotationOriginURL)
+			}
+			scheme = parsed.Scheme
+		}
 
 		if backendProtocol, ok := getAnnotation(ingress.Annotations, AnnotationBackendProtocol); ok {
+			if hasOriginURL && backendProtocol != scheme {
+				return nil, errors.Errorf("annotations %s and %s specify different protocols", AnnotationOriginURL, AnnotationBackendProtocol)
+			}
 			scheme = backendProtocol
 		}
 
@@ -114,30 +128,31 @@ func FromIngressToExposure(ctx context.Context, logger logr.Logger, kubeClient c
 		}
 
 		for _, path := range rule.HTTP.Paths {
-			namespacedName := types.NamespacedName{
-				Namespace: ingress.GetNamespace(),
-				Name:      path.Backend.Service.Name,
-			}
-			service := v1.Service{}
-			err := kubeClient.Get(ctx, namespacedName, &service)
-			if err != nil {
-				return nil, errors.Wrapf(err, "fetch service %s", namespacedName)
-			}
-
-			host, err := getHostFromService(&service, clusterDomain)
-			if err != nil {
-				return nil, err
-			}
-
-			var port int32
-			if path.Backend.Service.Port.Name != "" {
-				ok, extractedPort := getPortWithName(service.Spec.Ports, path.Backend.Service.Port.Name)
-				if !ok {
-					return nil, errors.Errorf("service %s has no port named %s", namespacedName, path.Backend.Service.Port.Name)
+			serviceTarget := originURL
+			if !hasOriginURL {
+				if path.Backend.Service == nil {
+					return nil, errors.Errorf("path in ingress %s/%s has no service backend", ingress.GetNamespace(), ingress.GetName())
 				}
-				port = extractedPort
-			} else {
-				port = path.Backend.Service.Port.Number
+				namespacedName := types.NamespacedName{Namespace: ingress.GetNamespace(), Name: path.Backend.Service.Name}
+				service := v1.Service{}
+				if err := kubeClient.Get(ctx, namespacedName, &service); err != nil {
+					return nil, errors.Wrapf(err, "fetch service %s", namespacedName)
+				}
+				host, err := getHostFromService(&service, clusterDomain)
+				if err != nil {
+					return nil, err
+				}
+				var port int32
+				if path.Backend.Service.Port.Name != "" {
+					ok, extractedPort := getPortWithName(service.Spec.Ports, path.Backend.Service.Port.Name)
+					if !ok {
+						return nil, errors.Errorf("service %s has no port named %s", namespacedName, path.Backend.Service.Port.Name)
+					}
+					port = extractedPort
+				} else {
+					port = path.Backend.Service.Port.Number
+				}
+				serviceTarget = fmt.Sprintf("%s://%s:%d", scheme, host, port)
 			}
 
 			var supportedPathTypes = map[networkingv1.PathType]struct{}{
@@ -155,7 +170,7 @@ func FromIngressToExposure(ctx context.Context, logger logr.Logger, kubeClient c
 
 			result = append(result, exposure.Exposure{
 				Hostname:               hostname,
-				ServiceTarget:          fmt.Sprintf("%s://%s:%d", scheme, host, port),
+				ServiceTarget:          serviceTarget,
 				PathPrefix:             ingressPathRegex(path.Path, *path.PathType),
 				IsDeleted:              isDeleted,
 				ProxySSLVerifyEnabled:  proxySSLVerifyEnabled,

@@ -31,6 +31,13 @@ type TunnelClient struct {
 	tunnelId           string
 	tunnelName         string
 	dnsCommentTemplate *template.Template // nil if disabled (empty template string)
+	staticRoutes       []cloudflare.UnvalidatedIngressRule
+}
+
+// SetStaticRoutes adds rules for hostnames outside the Ingress hostname grammar.
+// DNS for these routes is managed separately.
+func (t *TunnelClient) SetStaticRoutes(rules []cloudflare.UnvalidatedIngressRule) {
+	t.staticRoutes = slices.Clone(rules)
 }
 
 // DNSCommentTemplateData contains the variables available in the DNS comment template.
@@ -122,6 +129,7 @@ func (t *TunnelClient) updateTunnelIngressRules(ctx context.Context, exposures [
 		}
 		ingressRules = append(ingressRules, *ingress)
 	}
+	ingressRules = append(ingressRules, t.staticRoutes...)
 
 	// sort the rules: non-wildcard hostnames before wildcard hostnames (wildcards are fallbacks),
 	// then alphabetically by hostname, then by path length in descending order

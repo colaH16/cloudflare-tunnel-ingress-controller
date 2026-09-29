@@ -160,6 +160,13 @@ func main() {
 			}
 
 			logger.Info("cloudflare-tunnel-ingress-controller start serving")
+			deploymentConfig, configHash, err := controller.LoadCloudflaredDeploymentConfig(options.cloudflaredDeploymentConfig)
+			if err != nil {
+				logger.Error(err, "load cloudflared deployment config")
+				os.Exit(1)
+			}
+			tunnelClient.SetStaticRoutes(deploymentConfig.StaticRoutes)
+
 			err = controller.RegisterIngressController(logger, mgr,
 				controller.IngressControllerOptions{
 					IngressClassName:    options.ingressClass,
@@ -169,12 +176,6 @@ func main() {
 				})
 			if err != nil {
 				return err
-			}
-
-			deploymentConfig, configHash, err := controller.LoadCloudflaredDeploymentConfig(options.cloudflaredDeploymentConfig)
-			if err != nil {
-				logger.Error(err, "load cloudflared deployment config")
-				os.Exit(1)
 			}
 
 			done := make(chan struct{})

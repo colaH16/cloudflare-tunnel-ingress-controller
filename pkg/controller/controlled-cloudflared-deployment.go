@@ -79,6 +79,10 @@ func (d controlledCloudflaredDeployment) build() *appsv1.Deployment {
 		Containers:    []v1.Container{container},
 		RestartPolicy: v1.RestartPolicyAlways,
 	}
+	if customization.HostNetwork {
+		podSpec.HostNetwork = true
+		podSpec.DNSPolicy = v1.DNSClusterFirstWithHostNet
+	}
 
 	if customization.PodSecurityContext != nil {
 		podSpec.SecurityContext = customization.PodSecurityContext

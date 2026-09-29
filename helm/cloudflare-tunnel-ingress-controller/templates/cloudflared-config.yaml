@@ -7,6 +7,12 @@ metadata:
 data:
   config.json: |
     {{- $config := dict }}
+    {{- if .Values.cloudflared.hostNetwork }}
+    {{- $_ := set $config "hostNetwork" true }}
+    {{- end }}
+    {{- if .Values.cloudflared.staticRoutes }}
+    {{- $_ := set $config "staticRoutes" .Values.cloudflared.staticRoutes }}
+    {{- end }}
     {{- if .Values.cloudflared.resources }}
     {{- $_ := set $config "resources" .Values.cloudflared.resources }}
     {{- end }}

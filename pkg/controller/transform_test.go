@@ -136,6 +136,48 @@ func TestGetHostFromService(t *testing.T) {
 	}
 }
 
+func TestFromIngressToExposureOriginURL(t *testing.T) {
+	pathType := networkingv1.PathTypePrefix
+	for _, tc := range []struct {
+		url     string
+		wantErr bool
+	}{
+		{url: "http://traefik_swarm:8080"},
+		{url: "https://manatoki468.net"},
+		{url: "ftp://example.com", wantErr: true},
+		{url: "http://user:pass@example.com", wantErr: true},
+		{url: "http://example.com/secret", wantErr: true},
+	} {
+		t.Run(tc.url, func(t *testing.T) {
+			ingress := networkingv1.Ingress{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "legacy", Namespace: "default",
+					Annotations: map[string]string{AnnotationOriginURL: tc.url},
+				},
+				Spec: networkingv1.IngressSpec{Rules: []networkingv1.IngressRule{{
+					Host: "legacy.example.com",
+					IngressRuleValue: networkingv1.IngressRuleValue{HTTP: &networkingv1.HTTPIngressRuleValue{
+						Paths: []networkingv1.HTTPIngressPath{{Path: "/", PathType: &pathType}},
+					}},
+				}}},
+			}
+			exposures, err := FromIngressToExposure(context.Background(), logr.Discard(), nil, record.NewFakeRecorder(8), ingress, "cluster.local")
+			if tc.wantErr {
+				if err == nil {
+					t.Fatal("expected invalid origin URL to fail")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(exposures) != 1 || exposures[0].ServiceTarget != tc.url {
+				t.Fatalf("unexpected exposures: %#v", exposures)
+			}
+		})
+	}
+}
+
 func TestFromIngressToExposureNilHTTP(t *testing.T) {
 	// rule.HTTP is optional in the Ingress API, a rule may carry only a
 	// host. Previously this dereferenced the nil pointer and panicked;

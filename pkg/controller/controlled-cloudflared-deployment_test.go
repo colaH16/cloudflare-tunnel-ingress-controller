@@ -66,6 +66,7 @@ func TestControlledCloudflaredDeploymentBuildCustomization(t *testing.T) {
 
 	t.Run("customization is applied to the pod template", func(t *testing.T) {
 		customization := &CloudflaredDeploymentConfig{
+			HostNetwork: true,
 			Resources: &v1.ResourceRequirements{
 				Requests: v1.ResourceList{
 					v1.ResourceCPU: resource.MustParse("100m"),
@@ -99,6 +100,8 @@ func TestControlledCloudflaredDeploymentBuildCustomization(t *testing.T) {
 		}.build()
 
 		podSpec := deployment.Spec.Template.Spec
+		assert.True(t, podSpec.HostNetwork)
+		assert.Equal(t, v1.DNSClusterFirstWithHostNet, podSpec.DNSPolicy)
 		assert.Equal(t, "100m", podSpec.Containers[0].Resources.Requests.Cpu().String())
 		assert.Equal(t, map[string]string{"kubernetes.io/os": "linux"}, podSpec.NodeSelector)
 		require.NotNil(t, podSpec.Affinity)

@@ -123,6 +123,11 @@ healthProbe:
   port: 8081
 
 cloudflared:
+  # Run managed connector pods on the node network when the origin must be
+  # reached through a host-only Gateway service path.
+  hostNetwork: false
+  # Rules for hostnames outside the Kubernetes Ingress hostname grammar.
+  staticRoutes: []
   image:
     repository: ghcr.io/strrl/cloudflared
     pullPolicy: IfNotPresent

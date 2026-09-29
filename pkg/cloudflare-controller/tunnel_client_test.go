@@ -95,6 +95,16 @@ func TestRenderDNSComment(t *testing.T) {
 	}
 }
 
+func TestSetStaticRoutesCopiesInput(t *testing.T) {
+	rules := []cloudflare.UnvalidatedIngressRule{{Hostname: "metrics_se12_nodeexporter.cola16.app", Service: "http://traefik-file"}}
+	client := NewTunnelClient(logr.Discard(), nil, "account", "tunnel", "name", "")
+	client.SetStaticRoutes(rules)
+	rules[0].Hostname = "changed.example.com"
+	if client.staticRoutes[0].Hostname != "metrics_se12_nodeexporter.cola16.app" {
+		t.Fatal("static route input was not copied")
+	}
+}
+
 func Test_sortIngressRules(t *testing.T) {
 	tests := []struct {
 		name      string

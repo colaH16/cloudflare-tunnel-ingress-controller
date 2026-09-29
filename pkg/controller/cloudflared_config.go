@@ -7,25 +7,28 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cloudflare/cloudflare-go"
 	v1 "k8s.io/api/core/v1"
 )
 
 // CloudflaredDeploymentConfig holds customizable fields for the cloudflared Deployment pod spec.
 // It is loaded from a JSON config file mounted via ConfigMap.
 type CloudflaredDeploymentConfig struct {
-	Resources                 *v1.ResourceRequirements      `json:"resources,omitempty"`
-	SecurityContext           *v1.SecurityContext           `json:"securityContext,omitempty"`
-	PodSecurityContext        *v1.PodSecurityContext        `json:"podSecurityContext,omitempty"`
-	PodLabels                 map[string]string             `json:"podLabels,omitempty"`
-	PodAnnotations            map[string]string             `json:"podAnnotations,omitempty"`
-	NodeSelector              map[string]string             `json:"nodeSelector,omitempty"`
-	Tolerations               []v1.Toleration               `json:"tolerations,omitempty"`
-	Affinity                  *v1.Affinity                  `json:"affinity,omitempty"`
-	TopologySpreadConstraints []v1.TopologySpreadConstraint `json:"topologySpreadConstraints,omitempty"`
-	PriorityClassName         string                        `json:"priorityClassName,omitempty"`
-	Probes                    *CloudflaredProbes            `json:"probes,omitempty"`
-	Volumes                   []v1.Volume                   `json:"volumes,omitempty"`
-	VolumeMounts              []v1.VolumeMount              `json:"volumeMounts,omitempty"`
+	HostNetwork               bool                                `json:"hostNetwork,omitempty"`
+	StaticRoutes              []cloudflare.UnvalidatedIngressRule `json:"staticRoutes,omitempty"`
+	Resources                 *v1.ResourceRequirements            `json:"resources,omitempty"`
+	SecurityContext           *v1.SecurityContext                 `json:"securityContext,omitempty"`
+	PodSecurityContext        *v1.PodSecurityContext              `json:"podSecurityContext,omitempty"`
+	PodLabels                 map[string]string                   `json:"podLabels,omitempty"`
+	PodAnnotations            map[string]string                   `json:"podAnnotations,omitempty"`
+	NodeSelector              map[string]string                   `json:"nodeSelector,omitempty"`
+	Tolerations               []v1.Toleration                     `json:"tolerations,omitempty"`
+	Affinity                  *v1.Affinity                        `json:"affinity,omitempty"`
+	TopologySpreadConstraints []v1.TopologySpreadConstraint       `json:"topologySpreadConstraints,omitempty"`
+	PriorityClassName         string                              `json:"priorityClassName,omitempty"`
+	Probes                    *CloudflaredProbes                  `json:"probes,omitempty"`
+	Volumes                   []v1.Volume                         `json:"volumes,omitempty"`
+	VolumeMounts              []v1.VolumeMount                    `json:"volumeMounts,omitempty"`
 }
 
 // CloudflaredProbes holds probe configuration for the cloudflared container.
