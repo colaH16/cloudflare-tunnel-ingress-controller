@@ -64,13 +64,11 @@ jobs:
     needs: metadata
     permissions:
       packages: write
-    runs-on: [
-      "self-hosted",
-      "linux",
-      "arm64",
-    ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Login to GitHub Container Registry
