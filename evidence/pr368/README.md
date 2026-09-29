@@ -1,6 +1,6 @@
 # PR #368 runtime evidence
 
-The Prefix fix was tested against real Cloudflare Tunnel traffic before the production rollout. One isolated Ingress was retained across the controller-image switch. All 20 final HTTP cases matched the intended patched backend; ImplementationSpecific regex behavior was preserved.
+The Prefix fix was tested against real Cloudflare Tunnel traffic. One isolated Ingress was retained across the controller-image switch. All 20 final HTTP cases matched the intended patched backend; ImplementationSpecific regex behavior was preserved.
 
 - [Actual request and generated-regex comparison](runtime-results.md)
 - [Before responses and sanitized Cloudflare rules](http-demo-before.json)
@@ -10,7 +10,6 @@ The Prefix fix was tested against real Cloudflare Tunnel traffic before the prod
 - [Startup/propagation observations](test-observations.json)
 - [Image build run](https://github.com/colaH16/cloudflare-tunnel-ingress-controller/actions/runs/36580110382)
 - [Image digests and source revisions](published-images.json)
-- [Reusable image workflow](https://github.com/colaH16/cloudflare-tunnel-ingress-controller/actions/workflows/build-test-image.yaml) — Run workflow, select `source_ref`, optionally build the pre-fix baseline. GHCR publishing uses the automatically issued GITHUB_TOKEN with packages:write; no personal token is required.
 
 The replay is generated from saved actual request observations. It is not presented as a live terminal recording or a continuously running test endpoint.
 
@@ -20,13 +19,13 @@ The replay is generated from saved actual request observations. It is not presen
 - Full `go test -race ./pkg/...`: passed.
 - Kubernetes envtest integration: 17/17 specs passed with the race detector.
 - Changed-code golangci-lint: 0 issues. Full lint still reports the same two pre-existing SA1019 deprecations on the clean upstream baseline; those unrelated warnings were not changed.
-- The patched multi-architecture image was rolled out sequentially to 6 controllers across AMD64 and ARM64 nodes. All 45 existing routes were revalidated for unchanged backends, origin settings, DNS ownership and placement. All 45 public HTTP statuses and sanitized redirect targets matched the baseline, including pre-existing non-2xx responses. All 25 existing Traefik Ingress UIDs, specifications and annotations were unchanged. See [production regression summary](production-regression-summary.json).
+- The patched controller built and ran successfully on both `linux/amd64` and `linux/arm64`.
 
 ## Test environment and reproduction
 
 The test uses a separate Cloudflare Tunnel and IngressClass, three static echo backends, and one Kubernetes Ingress. Only the controller image changes between the final before and after runs. No production hostname is used for the echo test.
 
-The baseline is upstream master `627362f269d42ae4cb7fdfba1933d9bb078a95b0`. The patch is PR #368 commit `ed40cb12cf32d7b7315f71b66831c92bca3fd2b4`. Both use the upstream Dockerfile and a pinned distroless runtime, built on GitHub Actions with its automatically issued GITHUB_TOKEN. There are AMD64 and ARM64 patch images; the baseline comparison runs on AMD64.
+The baseline is upstream master `627362f269d42ae4cb7fdfba1933d9bb078a95b0`. The patch is PR #368 commit `ed40cb12cf32d7b7315f71b66831c92bca3fd2b4`. Both use the upstream Dockerfile and a pinned distroless runtime, built on GitHub Actions. There are AMD64 and ARM64 patch images; the baseline comparison runs on AMD64.
 
 The local race tests use Go 1.26.5 and envtest Kubernetes 1.36.2. The Actions Dockerfile currently resolves its `golang:1.26` builder to Go 1.26.8. These build environments are recorded separately.
 
