@@ -3,6 +3,8 @@ name: Latest Docker Image
 on:
   workflow_dispatch: {}
   push:
+    branches:
+      - feat/legacy-tunnel-bridge
     tags:
       - v*
 
