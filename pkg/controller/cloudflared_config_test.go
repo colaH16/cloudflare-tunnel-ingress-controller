@@ -22,7 +22,6 @@ func TestLoadCloudflaredDeploymentConfig_ValidJSON(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, "config.json")
 	configJSON := `{
-		"hostNetwork": true,
 		"staticRoutes": [{"hostname":"metrics_se12_nodeexporter.cola16.app","service":"http://traefik-file"}],
 		"resources": {
 			"requests": {"cpu": "100m", "memory": "128Mi"},
@@ -56,7 +55,6 @@ func TestLoadCloudflaredDeploymentConfig_ValidJSON(t *testing.T) {
 	config, hash, err := LoadCloudflaredDeploymentConfig(configPath)
 	require.NoError(t, err)
 	assert.NotEmpty(t, hash)
-	assert.True(t, config.HostNetwork)
 	assert.Len(t, config.StaticRoutes, 1)
 	assert.Equal(t, "metrics_se12_nodeexporter.cola16.app", config.StaticRoutes[0].Hostname)
 	assert.NotNil(t, config.Resources)

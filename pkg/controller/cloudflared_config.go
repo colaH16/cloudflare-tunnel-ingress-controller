@@ -14,7 +14,6 @@ import (
 // CloudflaredDeploymentConfig holds customizable fields for the cloudflared Deployment pod spec.
 // It is loaded from a JSON config file mounted via ConfigMap.
 type CloudflaredDeploymentConfig struct {
-	HostNetwork               bool                                `json:"hostNetwork,omitempty"`
 	StaticRoutes              []cloudflare.UnvalidatedIngressRule `json:"staticRoutes,omitempty"`
 	Resources                 *v1.ResourceRequirements            `json:"resources,omitempty"`
 	SecurityContext           *v1.SecurityContext                 `json:"securityContext,omitempty"`
