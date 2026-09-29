@@ -1,0 +1,5 @@
+ok  	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/cloudflare-controller	1.104s
+ok  	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/controller	2.399s
+?   	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/coverage	[no test files]
+?   	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/exposure	[no test files]
+?   	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/metrics	[no test files]

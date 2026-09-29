@@ -1,0 +1,24 @@
+{
+  "testHostWarmup": {
+    "phase": "before",
+    "path": "/foo/wp-admin/",
+    "status": "530",
+    "retryStatuses": [
+      "200",
+      "200"
+    ],
+    "retryBackend": "ADMIN",
+    "context": "First probe began 9 seconds after Ingress creation. Full run was repeated after tunnel and DNS readiness. No production route was involved."
+  },
+  "imageSwitchPropagation": {
+    "path": "/wp-admin",
+    "status": "200",
+    "backend": "PUBLIC",
+    "context": "An immediate request after the Kubernetes image rollout still saw the old tunnel rule. The final run checks the Cloudflare API rule set before probing and starts after the connector receives the new configuration."
+  },
+  "testDnsCreation": {
+    "reason": "CloudflareSyncFailed",
+    "errorCode": 81053,
+    "context": "A duplicate-record creation warning occurred during initial setup of the isolated test hostname. Subsequent reconciliation assigned the expected tunnel and all final HTTP requests succeeded. No production DNS record was affected."
+  }
+}

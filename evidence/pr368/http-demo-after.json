@@ -1,0 +1,188 @@
+{
+  "phase": "after",
+  "rules": [
+    {
+      "path": "/legacy/(admin|login)$",
+      "backend": "admin-echo"
+    },
+    {
+      "path": "^/wp-admin(/|$)",
+      "backend": "admin-echo"
+    },
+    {
+      "path": "^/admin(/|$)",
+      "backend": "admin-echo"
+    },
+    {
+      "path": "^/v1\\.0(/|$)",
+      "backend": "literal-echo"
+    },
+    {
+      "path": "^/",
+      "backend": "public-echo"
+    }
+  ],
+  "responses": [
+    {
+      "path": "/",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:49.914642+00:00",
+      "seconds": 0.585
+    },
+    {
+      "path": "/wp-admin",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:50.051273+00:00",
+      "seconds": 0.137
+    },
+    {
+      "path": "/wp-admin/",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:50.199578+00:00",
+      "seconds": 0.148
+    },
+    {
+      "path": "/wp-admin/edit.php",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:50.300011+00:00",
+      "seconds": 0.1
+    },
+    {
+      "path": "/foo/wp-admin/",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:50.459042+00:00",
+      "seconds": 0.159
+    },
+    {
+      "path": "/wp-admin-other/",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:50.606665+00:00",
+      "seconds": 0.148
+    },
+    {
+      "path": "/WP-ADMIN/",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:50.746512+00:00",
+      "seconds": 0.14
+    },
+    {
+      "path": "/v1.0",
+      "status": "200",
+      "backend": "LITERAL",
+      "expectedAfter": "LITERAL",
+      "timestamp": "2026-09-29T14:18:51.040335+00:00",
+      "seconds": 0.294
+    },
+    {
+      "path": "/v1.0/users",
+      "status": "200",
+      "backend": "LITERAL",
+      "expectedAfter": "LITERAL",
+      "timestamp": "2026-09-29T14:18:51.205818+00:00",
+      "seconds": 0.165
+    },
+    {
+      "path": "/v1X0",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:51.359140+00:00",
+      "seconds": 0.153
+    },
+    {
+      "path": "/prefix/v1.0",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:51.513097+00:00",
+      "seconds": 0.154
+    },
+    {
+      "path": "/legacy/admin",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:51.701657+00:00",
+      "seconds": 0.189
+    },
+    {
+      "path": "/legacy/login",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:51.849043+00:00",
+      "seconds": 0.147
+    },
+    {
+      "path": "/foo/legacy/admin",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:51.999798+00:00",
+      "seconds": 0.151
+    },
+    {
+      "path": "/legacy/admin/edit",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:52.154039+00:00",
+      "seconds": 0.154
+    },
+    {
+      "path": "/admin",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:52.290128+00:00",
+      "seconds": 0.136
+    },
+    {
+      "path": "/admin/",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:52.447696+00:00",
+      "seconds": 0.158
+    },
+    {
+      "path": "/admin/settings",
+      "status": "200",
+      "backend": "ADMIN",
+      "expectedAfter": "ADMIN",
+      "timestamp": "2026-09-29T14:18:52.600627+00:00",
+      "seconds": 0.153
+    },
+    {
+      "path": "/admin-tools",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:52.762263+00:00",
+      "seconds": 0.162
+    },
+    {
+      "path": "/prefix/admin",
+      "status": "200",
+      "backend": "PUBLIC",
+      "expectedAfter": "PUBLIC",
+      "timestamp": "2026-09-29T14:18:52.910464+00:00",
+      "seconds": 0.148
+    }
+  ],
+  "controllerSource": "ed40cb12cf32d7b7315f71b66831c92bca3fd2b4"
+}

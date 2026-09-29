@@ -1,0 +1,84 @@
+cloudflare:
+  secretRef:
+    name: cloudflare-api
+    accountIDKey: cloudflare-account-id
+    tunnelNameKey: cloudflare-tunnel-name
+    apiTokenKey: api-token
+fullnameOverride: strrl-pr368-path-controller
+ingressClass:
+  name: cf-pr368-path-test
+  controllerValue: strrl.dev/pr368-path-test
+  isDefaultClass: false
+replicaCount: 1
+leaderElection:
+  enabled: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+clusterDomain: cluster.local
+dnsCommentTemplate: managed by STRRL {{.TunnelName}}
+cloudflared:
+  image:
+    repository: cloudflare/cloudflared
+    tag: 2026.9.3@sha256:072c067d25ccbe61d46e18f0d0723255f2bb5304f7317caa95b27031520ff92c
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  protocol: auto
+  resources:
+    requests:
+      cpu: 20m
+      memory: 35Mi
+    limits:
+      cpu: 250m
+      memory: 140Mi
+  probes:
+    startup:
+      failureThreshold: 60
+      httpGet:
+        path: /ready
+        port: 44483
+        scheme: HTTP
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    readiness:
+      failureThreshold: 3
+      httpGet:
+        path: /ready
+        port: 44483
+        scheme: HTTP
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    liveness:
+      failureThreshold: 6
+      httpGet:
+        path: /ready
+        port: 44483
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+  volumes:
+  - emptyDir:
+      medium: Memory
+    name: tmpfs0
+  volumeMounts:
+  - mountPath: /tmp
+    name: tmpfs0
+  pdb:
+    enabled: false
+    maxUnavailable: 1
+serviceMonitor:
+  create: false
+image:
+  repository: ghcr.io/colah16/cloudflare-tunnel-ingress-controller
+  tag: pr368-ed40cb12@sha256:6cf27807eeaa8e249db633dd26532d579edbe3a51bd477570a62724b9bb9f211
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+nodeSelector:
+  kubernetes.io/arch: amd64

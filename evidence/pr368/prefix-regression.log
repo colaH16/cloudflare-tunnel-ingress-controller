@@ -1,0 +1,20 @@
+=== RUN   TestFromIngressToExposurePathMatching
+=== RUN   TestFromIngressToExposurePathMatching/prefix_matches_whole_path_elements_at_the_start
+=== RUN   TestFromIngressToExposurePathMatching/prefix_ignores_trailing_slash
+=== RUN   TestFromIngressToExposurePathMatching/nested_prefix_matches_whole_path_elements
+=== RUN   TestFromIngressToExposurePathMatching/root_prefix_matches_all_absolute_paths
+=== RUN   TestFromIngressToExposurePathMatching/prefix_escapes_regex_metacharacters
+=== RUN   TestFromIngressToExposurePathMatching/prefix_keeps_regex_groups_and_alternatives_literal
+=== RUN   TestFromIngressToExposurePathMatching/implementation_specific_retains_unanchored_matching
+=== RUN   TestFromIngressToExposurePathMatching/implementation_specific_retains_regex_syntax
+--- PASS: TestFromIngressToExposurePathMatching (1.29s)
+    --- PASS: TestFromIngressToExposurePathMatching/prefix_matches_whole_path_elements_at_the_start (1.15s)
+    --- PASS: TestFromIngressToExposurePathMatching/prefix_ignores_trailing_slash (0.02s)
+    --- PASS: TestFromIngressToExposurePathMatching/nested_prefix_matches_whole_path_elements (0.02s)
+    --- PASS: TestFromIngressToExposurePathMatching/root_prefix_matches_all_absolute_paths (0.02s)
+    --- PASS: TestFromIngressToExposurePathMatching/prefix_escapes_regex_metacharacters (0.03s)
+    --- PASS: TestFromIngressToExposurePathMatching/prefix_keeps_regex_groups_and_alternatives_literal (0.02s)
+    --- PASS: TestFromIngressToExposurePathMatching/implementation_specific_retains_unanchored_matching (0.02s)
+    --- PASS: TestFromIngressToExposurePathMatching/implementation_specific_retains_regex_syntax (0.02s)
+PASS
+ok  	github.com/STRRL/cloudflare-tunnel-ingress-controller/pkg/controller	2.414s

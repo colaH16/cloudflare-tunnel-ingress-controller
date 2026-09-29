@@ -1,0 +1,193 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pr368-path-test
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-echo
+  namespace: pr368-path-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: public-echo
+  template:
+    metadata:
+      labels:
+        app: public-echo
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: echo
+        image: docker.io/hashicorp/http-echo:1.0.0
+        args:
+        - -listen=:5678
+        - -text=PUBLIC
+        ports:
+        - containerPort: 5678
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 1
+          periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-echo
+  namespace: pr368-path-test
+spec:
+  selector:
+    app: public-echo
+  ports:
+  - port: 80
+    targetPort: 5678
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-echo
+  namespace: pr368-path-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-echo
+  template:
+    metadata:
+      labels:
+        app: admin-echo
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: echo
+        image: docker.io/hashicorp/http-echo:1.0.0
+        args:
+        - -listen=:5678
+        - -text=ADMIN
+        ports:
+        - containerPort: 5678
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 1
+          periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-echo
+  namespace: pr368-path-test
+spec:
+  selector:
+    app: admin-echo
+  ports:
+  - port: 80
+    targetPort: 5678
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: literal-echo
+  namespace: pr368-path-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: literal-echo
+  template:
+    metadata:
+      labels:
+        app: literal-echo
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: echo
+        image: docker.io/hashicorp/http-echo:1.0.0
+        args:
+        - -listen=:5678
+        - -text=LITERAL
+        ports:
+        - containerPort: 5678
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 1
+          periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: literal-echo
+  namespace: pr368-path-test
+spec:
+  selector:
+    app: literal-echo
+  ports:
+  - port: 80
+    targetPort: 5678

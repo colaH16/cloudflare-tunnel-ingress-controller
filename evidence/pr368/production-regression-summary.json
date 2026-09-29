@@ -1,0 +1,22 @@
+{
+  "httpRoutesCompared": 45,
+  "httpStatusAndRedirectChanges": 0,
+  "traefikIngressesUnchanged": 25,
+  "checks": [
+    "all six controllers Ready at pinned image digest",
+    "all expected connector pods Ready",
+    "backends, origin options, DNS ownership and placement revalidated",
+    "four retained legacy tunnel configs unchanged",
+    "same public HTTP statuses and sanitized redirect hosts/paths for 45 routes",
+    "same UID/spec/annotations for 25 Traefik Ingresses"
+  ],
+  "controllersRolledOut": 6,
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "routesRevalidated": 45,
+  "patchedSourceRevision": "ed40cb12cf32d7b7315f71b66831c92bca3fd2b4",
+  "indexDigest": "sha256:6cf27807eeaa8e249db633dd26532d579edbe3a51bd477570a62724b9bb9f211",
+  "baselineCaveat": "The existing 502 and 400 responses also remained unchanged; this is a before/after regression comparison, not a claim that every application is healthy."
+}

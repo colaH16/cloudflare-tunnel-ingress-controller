@@ -1,0 +1,28 @@
+{
+  "baseline-amd64": {
+    "reference": "ghcr.io/colah16/cloudflare-tunnel-ingress-controller:baseline-627362f-amd64",
+    "digest": "sha256:6a59ad151d70da1aafedd6038f880fa3656aa921a04126ad074fd265cb3c485d",
+    "revision": "627362f269d42ae4cb7fdfba1933d9bb078a95b0"
+  },
+  "pr368-amd64": {
+    "reference": "ghcr.io/colah16/cloudflare-tunnel-ingress-controller:pr368-ed40cb12-amd64",
+    "digest": "sha256:346c0f9ad96d9bcababf2b178a35747f01fa0272e3b86f5845174169f547ec77",
+    "platformDigest": "sha256:a49ed48bdb0d347a2ef8f3f09407ba5fffd8bd491432f3c45f951f87de36dc57",
+    "revision": "ed40cb12cf32d7b7315f71b66831c92bca3fd2b4"
+  },
+  "pr368-arm64": {
+    "reference": "ghcr.io/colah16/cloudflare-tunnel-ingress-controller:pr368-ed40cb12-arm64",
+    "digest": "sha256:a9c2a7953ddf3e9223e81d1a794615f6ba989fc5f31f5d2f3cd01ccf00f1dc85",
+    "platformDigest": "sha256:99d077d9f69259e5c80d5026c6f6aafac66f5e4efd89561e3d61cd20de2d8ec4",
+    "revision": "ed40cb12cf32d7b7315f71b66831c92bca3fd2b4"
+  },
+  "index": {
+    "reference": "ghcr.io/colah16/cloudflare-tunnel-ingress-controller:pr368-ed40cb12",
+    "digest": "sha256:6cf27807eeaa8e249db633dd26532d579edbe3a51bd477570a62724b9bb9f211",
+    "architectures": [
+      "amd64",
+      "arm64"
+    ],
+    "workflowRun": "https://github.com/colaH16/cloudflare-tunnel-ingress-controller/actions/runs/36580110382"
+  }
+}
