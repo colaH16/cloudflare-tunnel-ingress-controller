@@ -112,3 +112,25 @@ When you run `skaffold dev`, the secret defined in `cloudflare-api.yaml` will be
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+
+## Maintained Prefix image (colaH16 fork)
+
+The `images/maintained-prefix` branch tracks upstream `master` while retaining the
+Kubernetes Prefix path-matching fix in upstream PR #368. The maintained images are
+published to `ghcr.io/colah16/cloudflare-tunnel-ingress-controller` with `latest`,
+the latest upstream release tag (currently `v0.1.0`), and commit-specific tags.
+These are patched fork images, not the unmodified upstream release.
+
+`.github/workflows/maintain-prefix-image.yaml` performs a normal upstream merge,
+runs the Prefix regression, race/unit, vet, and local API-server integration
+checks, then builds native AMD64 and ARM64 images. Merge conflicts or failed
+checks stop the workflow before updating published multi-architecture tags; it
+never force-pushes or resolves conflicts by overriding either side.
+
+The small `sync-upstream-prefix.yaml` dispatcher must be present on the fork's
+default branch for its daily 03:17 Asia/Seoul schedule to run. It calls the
+maintained branch's reusable workflow; manual runs are also supported. The
+workflow publishes images only and does not access Kubernetes or deployment
+credentials. With `imagePullPolicy: Always`, Kubernetes resolves `latest` when
+starting a Pod; publishing a new tag does not restart existing Pods.
